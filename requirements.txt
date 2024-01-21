@@ -1,0 +1,7 @@
+sentencepiece==0.1.98
+gguf>=0.1.0
+torch
+transformers
+diffusers
+accelerate
+xformers
