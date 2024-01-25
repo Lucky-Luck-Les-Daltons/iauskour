@@ -1,11 +1,13 @@
 import os
 import threading
 import time
-import fcntl
+try:
+    import fcntl
+except : pass
+
 import subprocess
 import sys
-import os
-
+import msvcrt
 
 class LlamaInterface:
     def __init__(self):
@@ -82,13 +84,42 @@ class LlamaInterface:
 
     @staticmethod
     def non_block_read(output):
-        fd = output.fileno()
-        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-        try:
-            return output.read()
-        except Exception as e: # https://bugs.python.org/issue13322
-            return ""
+        if sys.platform.startswith('win'):
+            import ctypes
+            from ctypes import wintypes
+
+            LPDWORD = ctypes.POINTER(wintypes.DWORD)
+            GENERIC_READ = 0x80000000
+            OPEN_EXISTING = 3
+
+            h = msvcrt.get_osfhandle(output.fileno())
+            pipe = ctypes.windll.kernel32.CreateFileW(
+                h,
+                GENERIC_READ,
+                0,
+                None,
+                OPEN_EXISTING,
+                0,
+                None
+            )
+
+            flags = wintypes.DWORD()
+            ctypes.windll.kernel32.GetNamedPipeInfo(pipe, None, None, None, None, ctypes.byref(flags))
+
+            if flags.value == 0:  # Pipe non-bloquant
+                return output.read()
+
+            ctypes.windll.kernel32.CloseHandle(pipe)
+            return b''
+
+        else:  # Systèmes de type UNIX
+            fd = output.fileno()
+            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+            try:
+                return output.read()
+            except Exception as e:  # https://bugs.python.org/issue13322
+                return ""
 
 """
 llint = LlamaInterface()
