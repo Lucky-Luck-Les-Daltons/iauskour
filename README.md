@@ -26,6 +26,8 @@ Si votre système ne reconnait pas pip, installer pip.
 
 ### Linux
 
+`git clone https://github.com/Lucky-Luck-Les-Daltons/iauskour.git`
+`cd iauskour`
 `. ./install.sh`
 
 ou
