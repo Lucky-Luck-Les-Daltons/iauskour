@@ -65,8 +65,8 @@ class LlamaInterface:
                 time.sleep(0.5)
 
     def _start_llama(self, onend):
-        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
+        #sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
         onend()
 
     def _add_to_answer(self, str):

@@ -12,7 +12,7 @@ Write-Host "Environnement virtuel créé avec succès."
 .\venv\Scripts\Activate.ps1
 
 # Installation des dépendances du projet depuis le fichier requirements.txt
-$requirementsFile = "./requirements.txt"
+$requirementsFile = "./requirements_win.txt"
 if (Test-Path $requirementsFile) {
     & pip install -r $requirementsFile
        Write-Host "Le fichier requirements.txt a été trouvé."
