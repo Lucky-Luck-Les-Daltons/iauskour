@@ -1,5 +1,7 @@
+
 Ce projet permet de créer une histoire accompagnée d'une image, à partir d'un prompt.
 Il utilise [StableDiffusion](https://github.com/CompVis/stable-diffusion) pour la génération d'image, et [Llama2](https://github.com/facebookresearch/llama) pour générer une histoire.
+
 
 
 ## Captures d'écrans
@@ -20,6 +22,7 @@ Si votre système ne reconnait pas pip, installer pip.
 
 * un compilateur C
 * openssl
+
 
 ### Linux
 
@@ -43,5 +46,4 @@ En progression...
 BOOOOH Apple nul nul
 
 ## Exécution
-
 
