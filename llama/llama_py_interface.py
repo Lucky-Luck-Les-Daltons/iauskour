@@ -13,6 +13,10 @@ try:
 except:pass
 
 class LlamaInterfaceLinux:
+    """
+    Init Constructeur de la classe
+    :param self: equivalent de this.
+    """
     def __init__(self):
         self.generating = False
         self.answer = ""
@@ -25,8 +29,25 @@ class LlamaInterfaceLinux:
         self._new_token_actions = [lambda t: self._add_to_answer(t)]
         self._gen_end_actions = [lambda s: self._switch_generating_state()]
 
+    """
+     Generate_non_block permet de récupérer le script retourné par llama. Il est non bloquant donc il laisse tourner
+     l'IA sans empécher la suite des scripts.
+    :param self: equivalent de this.
+    :param prompt: Texte transmis à l'IA
+    :param autre: Les autres paramètres sont des callbacks obligatoires
+    """
     def generate_non_block(self, prompt, on_new_token=lambda s: None, on_end=lambda s: None):
         self._generate(prompt, False, on_new_token=on_new_token, on_end=on_end)
+    
+    """
+    Generate permet de récupérer le script retourné par llama. La suite du script ne s'excutera qu'après que l'IA
+    ait fourni sa réponse. 
+    l'IA sans empécher la suite des scripts.
+    :param self: equivalent de this.
+    :param prompt: Texte transmis à l'IA
+    :param autre: Les autres paramètres sont des callbacks
+    :return : texte fourni par l'IA
+    """
 
     def generate(self, prompt, on_new_token=lambda s: None, on_end=lambda s: None) -> str:
         self._generate(prompt, True, on_new_token=on_new_token, on_end=on_end)
@@ -97,12 +118,25 @@ class LlamaInterfaceLinux:
 
 
 class LlamaInterfaceWindows:
+    """
+    Init Constructeur de la classe pour un systeme windows
+    :param self: equivalent de this.
+    """
     def __init__(self):
         self.generating = False
         self.answer = ""
         self.prompt = None
         self.model_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "models/7B/ggml-model-q4_0.gguf")
 
+    """
+    Generate permet de récupérer le script retourné par llama. La suite du script ne s'excutera qu'après que l'IA
+    ait fourni sa réponse. 
+    l'IA sans empécher la suite des scripts.
+    :param self: equivalent de this.
+    :param prompt: Texte transmis à l'IA
+    :param autre: Les autres paramètres sont des callbacks
+    :return : texte fourni par l'IA
+    """
     def generate(self, prompt, on_new_token=lambda s: None, on_end=lambda s: None) -> str:
         llm = Llama(
         model_path="D:\\Llama-2-7b\\ggml-model-q4_0.gguf",
