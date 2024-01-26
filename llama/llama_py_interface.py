@@ -1,15 +1,18 @@
 import os
 import threading
+import json
 import time
 try:
     import fcntl
-except : pass
-
+except:pass
 import subprocess
 import sys
-import msvcrt
+import os
+try:
+    from llama_cpp import Llama
+except:pass
 
-class LlamaInterface:
+class LlamaInterfaceLinux:
     def __init__(self):
         self.generating = False
         self.answer = ""
@@ -68,7 +71,7 @@ class LlamaInterface:
 
     def _start_llama(self, onend):
         sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
+        #sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
         onend()
 
     def _add_to_answer(self, str):
@@ -84,42 +87,49 @@ class LlamaInterface:
 
     @staticmethod
     def non_block_read(output):
-        if sys.platform.startswith('win'):
-            import ctypes
-            from ctypes import wintypes
+        fd = output.fileno()
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+        try:
+            return output.read()
+        except Exception as e: # https://bugs.python.org/issue13322
+            return ""
 
-            LPDWORD = ctypes.POINTER(wintypes.DWORD)
-            GENERIC_READ = 0x80000000
-            OPEN_EXISTING = 3
 
-            h = msvcrt.get_osfhandle(output.fileno())
-            pipe = ctypes.windll.kernel32.CreateFileW(
-                h,
-                GENERIC_READ,
-                0,
-                None,
-                OPEN_EXISTING,
-                0,
-                None
-            )
+class LlamaInterfaceWindows:
+    def __init__(self):
+        self.generating = False
+        self.answer = ""
+        self.prompt = None
+        self.model_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "models/7B/ggml-model-q4_0.gguf")
 
-            flags = wintypes.DWORD()
-            ctypes.windll.kernel32.GetNamedPipeInfo(pipe, None, None, None, None, ctypes.byref(flags))
+    def generate(self, prompt, on_new_token=lambda s: None, on_end=lambda s: None) -> str:
+        llm = Llama(
+        model_path="D:\\Llama-2-7b\\ggml-model-q4_0.gguf",
+            # n_gpu_layers=-1, # Uncomment to use GPU acceleration 
+            # seed=1337, # Uncomment to set a specific seed
+            # n_ctx=2048, # Uncomment to increase the context window
+        )
+        output = llm(
+            prompt,
+            max_tokens=32, # Generate up to 32 tokens, set to None to generate up to the end of the context window
+            stop=["Q:", "\n"], # Stop generating just before the model would generate a new question
+            echo=True # Echo the prompt back in the output
+        ) # Generate a completion, can also call create_completion
+        print(output)
+        print(output["choices"][0])
+        self.answer=output["choices"][0]["text"]
+        return self.answer
 
-            if flags.value == 0:  # Pipe non-bloquant
-                return output.read()
 
-            ctypes.windll.kernel32.CloseHandle(pipe)
-            return b''
 
-        else:  # Systèmes de type UNIX
-            fd = output.fileno()
-            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-            try:
-                return output.read()
-            except Exception as e:  # https://bugs.python.org/issue13322
-                return ""
+if os.name == 'posix':  # Unix/Linux/MacOS
+    LlamaInterface= LlamaInterfaceLinux
+    print("You are using a Unix-like operating system.")
+elif os.name == 'nt':   # Windows
+    LlamaInterface = LlamaInterfaceWindows
+    print("You are using a Windows operating system.")
+
 
 """
 llint = LlamaInterface()
