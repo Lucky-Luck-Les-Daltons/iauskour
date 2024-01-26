@@ -14,7 +14,7 @@ Write-Host "Environnement virtuel créé avec succès."
 # Installation des dépendances du projet depuis le fichier requirements.txt
 $requirementsFile = "./requirements_win.txt"
 if (Test-Path $requirementsFile) {
-    & pip install -r $requirementsFile
+    & python -m pip install -r $requirementsFile
        Write-Host "Le fichier requirements.txt a été trouvé."
 } else {
     Write-Host "Le fichier requirements.txt n'a pas été trouvé."
