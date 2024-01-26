@@ -44,6 +44,10 @@ ou
 
 ### Windows
 
+`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force`  (permet l'exécution de script dans powershell)
+
+`./instal.ps1`
+
 En progression...
 
 ### IOS
