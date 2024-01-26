@@ -6,8 +6,7 @@ import subprocess
 import sys
 import os
 
-
-class LlamaInterface:
+class LlamaInterfaceLinux:
     def __init__(self):
         self.generating = False
         self.answer = ""
@@ -65,8 +64,8 @@ class LlamaInterface:
                 time.sleep(0.5)
 
     def _start_llama(self, onend):
-        #sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
+        sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        #sp = subprocess.run([self.binary, self.model_path, self.prompt, self.pipe_name])
         onend()
 
     def _add_to_answer(self, str):
@@ -89,6 +88,31 @@ class LlamaInterface:
             return output.read()
         except Exception as e: # https://bugs.python.org/issue13322
             return ""
+
+
+class LlamaInterfaceWindows:
+    def __init__(self):
+        self.generating = False
+        self.answer = ""
+        self.prompt = None
+        self.model_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "models/7B/ggml-model-q4_0.gguf")
+
+    def generate(self, prompt, on_new_token=lambda s: None, on_end=lambda s: None) -> str:
+        self._generate(prompt, True, on_new_token=on_new_token, on_end=on_end)
+        return self.answer
+
+    def get_all_tokens(self):
+        return self.answer
+
+
+
+if os.name == 'posix':  # Unix/Linux/MacOS
+    LlamaInterface= LlamaInterfaceLinux
+    print("You are using a Unix-like operating system.")
+elif os.name == 'nt':   # Windows
+    LlamaInterface = LlamaInterfaceWindows
+    print("You are using a Windows operating system.")
+
 
 """
 llint = LlamaInterface()
